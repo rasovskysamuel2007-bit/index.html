@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teorie her - Experiment</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/react.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/react-dom.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        #root {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .intro-section {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        input[type="text"] {
+            padding: 10px 15px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+            max-width: 100%;
+        }
+        
+        h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .game-card, .strategy-card {
+            padding: 15px;
+            background: #e8f4f8;
+            border: 1px solid #4db8d8;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+        
+        .game-card:hover, .strategy-card:hover {
+            background: #d0ebf3;
+            transform: translateY(-2px);
+        }
+        
+        .game-card h3, .strategy-card h3 {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 15px;
+        }
+        
+        .game-card p, .strategy-card p {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: #4db8d8;
+            height: 100%;
+            transition: width 0.3s;
+        }
+        
+        .round-info {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .round-info p {
+            color: #666;
+            margin: 5px 0;
+        }
+        
+        .result-box {
+            background: #e8f5e9;
+            border: 2px solid #4caf50;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .result-box .text {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        
+        .score-container {
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+        }
+        
+        .score-item {
+            text-align: center;
+        }
+        
+        .score-item .label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .score-item .value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .choices-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            padding: 12px;
+            border: 2px solid #4db8d8;
+            background: #e8f4f8;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+        
+        button:hover:not(:disabled) {
+            background: #d0ebf3;
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: default;
+        }
+        
+        .stats-panel {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            font-size: 13px;
+        }
+        
+        .stat-item .label {
+            color: #666;
+            margin-bottom: 3px;
+        }
+        
+        .stat-item .value {
+            font-weight: bold;
+            font-size: 18px;
+            color: #2196f3;
+        }
+        
+        .results-section {
+            text-align: center;
+        }
+        
+        .final-scores {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .score-card {
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid;
+        }
+        
+        .score-card.player {
+            background: #e3f2fd;
+            border-left-color: #2196f3;
+        }
+        
+        .score-card.bot {
+            background: #ffebee;
+            border-left-color: #f44336;
+        }
+        
+        .score-card .label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .score-card .total {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .score-card .player .total {
+            color: #2196f3;
+        }
+        
+        .score-card .bot .total {
+            color: #f44336;
+        }
+        
+        .score-card .average {
+            font-size: 11px;
+            color: #999;
+        }
+        
+        .analysis {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .analysis h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .analysis-item {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+        }
+        
+        .analysis-label {
+            flex: 1;
+        }
+        
+        .analysis-bar {
+            flex: 1;
+            background: #e0e0e0;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 10px;
+            overflow: hidden;
+        }
+        
+        .analysis-bar-fill {
+            background: #4db8d8;
+            height: 100%;
+        }
+        
+        .analysis-count {
+            width: 50px;
+            text-align: right;
+            font-weight: bold;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .button-group button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        
+        .download-btn {
+            background: #4caf50;
+        }
+        
+        .download-btn:hover {
+            background: #45a049;
+        }
+        
+        .reset-btn {
+            background: #4db8d8;
+        }
+        
+        .reset-btn:hover {
+            background: #3da0bb;
+        }
+        
+        .back-btn {
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #ccc;
+            padding: 10px 20px;
+            margin-top: 20px;
+        }
+        
+        .back-btn:hover {
+            background: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const GameTheoryPlatform = () => {
+            const [gameState, setGameState] = useState('menu');
+            const [selectedGame, setSelectedGame] = useState(null);
+            const [playerId, setPlayerId] = useState(null);
+            const [gameHistory, setGameHistory] = useState([]);
+            const [currentRound, setCurrentRound] = useState(0);
+            const [playerChoice, setPlayerChoice] = useState(null);
+            const [botStrategy, setBotStrategy] = useState(null);
+            const [gameResult, setGameResult] = useState(null);
+
+            const botStrategies = {
+                always_cooperate: { name: '🤝 Věčný přátel', description: 'Vždy kooperuje' },
+                always_defect: { name: '⚔️ Věčný zrada', description: 'Vždy zradí' },
+                tit_for_tat: { name: '🔄 Oko za oko', description: 'Kopíruje tvůj poslední tah' },
+                random: { name: '🎲 Nepředvídatelný', description: 'Náhodné rozhodnutí' },
+            };
+
+            const games = {
+                prisoners_dilemma: {
+                    name: '🔗 Vězňovo dilema',
+                    rounds: 10,
+                    description: 'Dva vězni se rozhodují mezi mlčením a přiznaním.',
+                    choices: ['cooperate', 'defect'],
+                    labels: { cooperate: 'Mlčet', defect: 'Přiznat' },
+                    matrix: {
+                        'cooperate-cooperate': { player: 3, bot: 3, text: 'Oba se mlčí - mírný trest' },
+                        'cooperate-defect': { player: 0, bot: 5, text: 'Ty jsi mlčel, on ti to vrátil!' },
+                        'defect-cooperate': { player: 5, bot: 0, text: 'Ty jsi ho zradil - vyšlo to!' },
+                        'defect-defect': { player: 1, bot: 1, text: 'Oba vás prozradili - těžký trest' },
+                    },
+                },
+                coordination: {
+                    name: '🎯 Koordinační hra',
+                    rounds: 8,
+                    description: 'Musíš si vybrat stejnou možnost jako soupeř. Bez komunikace!',
+                    choices: ['a', 'b'],
+                    labels: { a: 'Volba A', b: 'Volba B' },
+                    matrix: {
+                        'a-a': { player: 2, bot: 2, text: 'Shoda! Oba zvolili A' },
+                        'a-b': { player: 0, bot: 0, text: 'Nesouhlasíte - oba prohráli' },
+                        'b-a': { player: 0, bot: 0, text: 'Nesouhlasíte - oba prohráli' },
+                        'b-b': { player: 1, bot: 1, text: 'Shoda! Oba zvolili B' },
+                    },
+                },
+                matching_pennies: {
+                    name: '💰 Shodné mince',
+                    rounds: 12,
+                    description: 'Hraj na mysli - snaž se být nepředvídatelný',
+                    choices: ['heads', 'tails'],
+                    labels: { heads: 'Hlava', tails: 'Pošta' },
+                    matrix: {
+                        'heads-heads': { player: 1, bot: -1, text: 'Oba hlava - ty vítězíš!' },
+                        'heads-tails': { player: -1, bot: 1, text: 'Hlava vs Pošta - bot vítězí' },
+                        'tails-heads': { player: -1, bot: 1, text: 'Pošta vs Hlava - bot vítězí' },
+                        'tails-tails': { player: 1, bot: -1, text: 'Oba pošta - ty vítězíš!' },
+                    },
+                },
+                battle_of_sexes: {
+                    name: '🎪 Bitva pohlaví',
+                    rounds: 8,
+                    description: 'Pár se rozhoduje mezi fotbalem a divadlem. Chtějí být spolu.',
+                    choices: ['football', 'opera'],
+                    labels: { football: '⚽ Fotbal', opera: '🎭 Divadlo' },
+                    matrix: {
+                        'football-football': { player: 2, bot: 1, text: 'Oba na fotbal - ty jsi šťastnější!' },
+                        'football-opera': { player: 0, bot: 0, text: 'Odděleni - oba nešťastní' },
+                        'opera-football': { player: 0, bot: 0, text: 'Odděleni - oba nešťastní' },
+                        'opera-opera': { player: 1, bot: 2, text: 'Oba do divadla - bot je šťastnější!' },
+                    },
+                },
+                hawk_dove: {
+                    name: '🦅 Jestřáb vs Holub',
+                    rounds: 10,
+                    description: 'Agresivní strategie vs mírová. Která zvítězí?',
+                    choices: ['dove', 'hawk'],
+                    labels: { dove: '🕊️ Mírový', hawk: '🦅 Agresivní' },
+                    matrix: {
+                        'dove-dove': { player: 3, bot: 3, text: 'Oba mírní - všichni vítězí' },
+                        'dove-hawk': { player: 2, bot: 4, text: 'Ty jsi mírný - bot tě dominuje' },
+                        'hawk-dove': { player: 4, bot: 2, text: 'Ty jsi agresivní - přeběhl jsi ho' },
+                        'hawk-hawk': { player: 0, bot: 0, text: 'Oba agresivní - válka!' },
+                    },
+                },
+                stag_hunt: {
+                    name: '🦌 Lov losa',
+                    rounds: 9,
+                    description: 'Spolupráce přináší více, ale je riskantní. Zde hraje roli důvěra.',
+                    choices: ['stag', 'hare'],
+                    labels: { stag: '🦌 Lov losa', hare: '🐰 Lov zajíce' },
+                    matrix: {
+                        'stag-stag': { player: 4, bot: 4, text: 'Oba loví losa - skvělý tým!' },
+                        'stag-hare': { player: 1, bot: 3, text: 'Ty vsadil na losa - bot na zajíce' },
+                        'hare-stag': { player: 3, bot: 1, text: 'Ty jsem byl opatrný - bot byl odvážný' },
+                        'hare-hare': { player: 3, bot: 3, text: 'Oba jste byli opatrní' },
+                    },
+                },
+            };
+
+            const getBotMove = (strategy, round, playerHistory = []) => {
+                const gameChoices = games[selectedGame].choices;
+                
+                switch (strategy) {
+                    case 'always_cooperate':
+                        return gameChoices[0];
+                    
+                    case 'always_defect':
+                        return gameChoices[1];
+                    
+                    case 'tit_for_tat':
+                        if (round === 0) return gameChoices[0];
+                        return playerHistory[playerHistory.length - 1];
+                    
+                    case 'random':
+                        return gameChoices[Math.floor(Math.random() * gameChoices.length)];
+                    
+                    default:
+                        return gameChoices[0];
+                }
+            };
+
+            const playRound = (choice) => {
+                if (!selectedGame || !botStrategy) return;
+
+                const playerHistory = gameHistory.map(r => r.playerChoice);
+                const botMove = getBotMove(botStrategy, currentRound, playerHistory);
+                const key = `${choice}-${botMove}`;
+                const outcome = games[selectedGame].matrix[key];
+
+                const newRound = {
+                    round: currentRound + 1,
+                    playerChoice: choice,
+                    botChoice: botMove,
+                    outcome: outcome,
+                };
+
+                const updatedHistory = [...gameHistory, newRound];
+                setGameHistory(updatedHistory);
+                setPlayerChoice(choice);
+                setGameResult(outcome);
+
+                if (currentRound + 1 >= games[selectedGame].rounds) {
+                    setTimeout(() => {
+                        setGameState('results');
+                    }, 1500);
+                } else {
+                    setTimeout(() => {
+                        setCurrentRound(currentRound + 1);
+                        setPlayerChoice(null);
+                        setGameResult(null);
+                    }, 1500);
+                }
+            };
+
+            const calculateStats = () => {
+                if (gameHistory.length === 0) return null;
+
+                let playerTotal = 0;
+                let botTotal = 0;
+                const choiceCounts = {};
+
+                gameHistory.forEach(round => {
+                    playerTotal += round.outcome.player;
+                    botTotal += round.outcome.bot;
+                    choiceCounts[round.playerChoice] = (choiceCounts[round.playerChoice] || 0) + 1;
+                });
+
+                return {
+                    playerScore: playerTotal,
+                    botScore: botTotal,
+                    avgPlayerScore: (playerTotal / gameHistory.length).toFixed(2),
+                    avgBotScore: (botTotal / gameHistory.length).toFixed(2),
+                    choiceCounts,
+                };
+            };
+
+            const exportData = () => {
+                const stats = calculateStats();
+                const game = games[selectedGame];
+                const csvContent = [
+                    ['Maturitní práce: Teorie her - Sběr dat'],
+                    ['ID hráče', playerId],
+                    ['Hra', game.name],
+                    ['Bot strategie', botStrategies[botStrategy].name],
+                    ['Datum', new Date().toLocaleString('cs-CZ')],
+                    [''],
+                    ['Kolo', 'Tvůj tah', 'Bot tah', 'Tvůj skóre', 'Bot skóre', 'Popis'],
+                    ...gameHistory.map(round => [
+                        round.round,
+                        game.labels[round.playerChoice],
+                        game.labels[round.botChoice],
+                        round.outcome.player,
+                        round.outcome.bot,
+                        round.outcome.text,
+                    ]),
+                    [''],
+                    ['STATISTIKA'],
+                    ['Tvůj celkový skóre', stats.playerScore],
+                    ['Bot celkový skóre', stats.botScore],
+                    ['Tvůj průměrný skóre na kolo', stats.avgPlayerScore],
+                    ['Bot průměrný skóre na kolo', stats.avgBotScore],
+                ]
+                    .map(row => row.map(cell => `"${cell}"`).join(','))
+                    .join('\n');
+
+                const element = document.createElement('a');
+                element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent));
+                element.setAttribute('download', `game_${selectedGame}_${playerId}_${Date.now()}.csv`);
+                element.style.display = 'none';
+                document.body.appendChild(element);
+                element.click();
+                document.body.removeChild(element);
+            };
+
+            const resetGame = () => {
+                setGameState('menu');
+                setSelectedGame(null);
+                setGameHistory([]);
+                setCurrentRound(0);
+                setPlayerChoice(null);
+                setGameResult(null);
+                setBotStrategy(null);
+            };
+
+            const stats = calculateStats();
+
+            return (
+                <div className="container">
+                    {gameState === 'menu' && (
+                        <div>
+                            <h1>🎮 Teorie her - Experiment</h1>
+                            <p className="subtitle">
+                                Zjistěte, jak se váš styl hry liší od teoretických modelů
+                            </p>
+
+                            {!playerId && (
+                                <div className="intro-section">
+                                    <label htmlFor="playerIdInput">
+                                        Zadej své ID (anonymní):
+                                    </label>
+                                    <br /><br />
+                                    <input
+                                        id="playerIdInput"
+                                        type="text"
+                                        placeholder="např. Student_001"
+                                        value={playerId || ''}
+                                        onChange={(e) => setPlayerId(e.target.value)}
+                                    />
+                                </div>
+                            )}
+
+                            {playerId && (
+                                <div>
+                                    <h2>Vyber hru:</h2>
+                                    <div className="game-grid">
+                                        {Object.entries(games).map(([key, game]) => (
+                                            <div
+                                                key={key}
+                                                className="game-card"
+                                                onClick={() => {
+                                                    setSelectedGame(key);
+                                                    setGameState('strategy_select');
+                                                }}
+                                            >
+                                                <h3>{game.name}</h3>
+                                                <p>{game.description}</p>
+                                                <p style={{ marginTop: '10px', fontSize: '11px', color: '#999' }}>
+                                                    ➜ {game.rounds} kol
+                                                </p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {gameState === 'strategy_select' && (
+                        <div>
+                            <h2>Zvolte strategii bota</h2>
+                            <p style={{ color: '#666', marginBottom: '20px' }}>
+                                Budete hrát {games[selectedGame].rounds} kol proti zvolené strategii
+                            </p>
+
+                            <div style={{ display: 'grid', gap: '12px' }}>
+                                {Object.entries(botStrategies).map(([key, strat]) => (
+                                    <div
+                                        key={key}
+                                        className="strategy-card"
+                                        onClick={() => {
+                                            setBotStrategy(key);
+                                            setGameState('playing');
+                                        }}
+                                    >
+                                        <h3>{strat.name}</h3>
+                                        <p>{strat.description}</p>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <button className="back-btn" onClick={() => setGameState('menu')}>
+                                ← Zpět
+                            </button>
+                        </div>
+                    )}
+
+                    {gameState === 'playing' && selectedGame && (
+                        <div>
+                            <div className="round-info">
+                                <h2>{games[selectedGame].name}</h2>
+                                <p>Kolo {currentRound + 1} / {games[selectedGame].rounds}</p>
+                                <div className="progress-bar">
+                                    <div
+                                        className="progress-fill"
+                                        style={{
+                                            width: `${((currentRound + 1) / games[selectedGame].rounds) * 100}%`,
+                                        }}
+                                    />
+                                </div>
+                            </div>
+
+                            {gameResult && (
+                                <div className="result-box">
+                                    <div className="text">{gameResult.text}</div>
+                                    <div className="score-container">
+                                        <div className="score-item">
+                                            <div className="label">Tvůj skóre</div>
+                                            <div className="value" style={{ color: '#2196f3' }}>
+                                                +{gameResult.player}
+                                            </div>
+                                        </div>
+                                        <div className="score-item">
+                                            <div className="label">Bot skóre</div>
+                                            <div className="value" style={{ color: '#f44336' }}>
+                                                +{gameResult.bot}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="choices-grid">
+                                {games[selectedGame].choices.map(choice => (
+                                    <button
+                                        key={choice}
+                                        onClick={() => playRound(choice)}
+                                        disabled={playerChoice !== null}
+                                        style={{
+                                            backgroundColor: playerChoice === choice ? '#4caf50' : '#e8f4f8',
+                                            borderColor: playerChoice === choice ? '#4caf50' : '#4db8d8',
+                                            color: playerChoice === choice ? 'white' : 'black',
+                                        }}
+                                    >
+                                        {games[selectedGame].labels[choice]}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {stats && (
+                                <div className="stats-panel">
+                                    <div className="stat-item">
+                                        <div className="label">Tvůj celkový skóre</div>
+                                        <div className="value">{stats.playerScore}</div>
+                                    </div>
+                                    <div className="stat-item">
+                                        <div className="label">Bot skóre</div>
+                                        <div className="value" style={{ color: '#f44336' }}>
+                                            {stats.botScore}
+                                        </div>
+                                    </div>
+                                    <div className="stat-item">
+                                        <div className="label">Tvůj průměr</div>
+                                        <div className="value" style={{ fontSize: '16px' }}>
+                                            {stats.avgPlayerScore}
+                                        </div>
+                                    </div>
+                                    <div className="stat-item">
+                                        <div className="label">Bot průměr</div>
+                                        <div className="value" style={{ fontSize: '16px', color: '#f44336' }}>
+                                            {stats.avgBotScore}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {gameState === 'results' && stats && (
+                        <div className="results-section">
+                            <h2 style={{ marginBottom: '20px' }}>🏁 Konec hry!</h2>
+
+                            <div className="final-scores">
+                                <div className="score-card player">
+                                    <div className="label">TY</div>
+                                    <div className="total">{stats.playerScore}</div>
+                                    <div className="average">
+                                        Průměr: {stats.avgPlayerScore}/kolo
+                                    </div>
+                                </div>
+
+                                <div className="score-card bot">
+                                    <div className="label">BOT</div>
+                                    <div className="total">{stats.botScore}</div>
+                                    <div className="average">
+                                        Průměr: {stats.avgBotScore}/kolo
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="analysis">
+                                <h3>📊 Analýza tvých tahů</h3>
+                                {Object.entries(stats.choiceCounts).map(([choice, count]) => (
+                                    <div key={choice} className="analysis-item">
+                                        <div className="analysis-label">
+                                            {games[selectedGame].labels[choice]}:
+                                        </div>
+                                        <div className="analysis-bar">
+                                            <div
+                                                className="analysis-bar-fill"
+                                                style={{
+                                                    width: `${(count / gameHistory.length) * 100}%`,
+                                                }}
+                                            />
+                                        </div>
+                                        <div className="analysis-count">
+                                            {count}/{gameHistory.length}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="button-group">
+                                <button className="download-btn" onClick={exportData}>
+                                    ⬇️ Stáhnout CSV
+                                </button>
+                                <button className="reset-btn" onClick={resetGame}>
+                                    🔄 Nová hra
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        ReactDOM.render(<GameTheoryPlatform />, document.getElementById('root'));
+    </script>
+</body>
+</html>
